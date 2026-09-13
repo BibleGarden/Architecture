@@ -21,8 +21,8 @@ has no account and does not know the person's name.
    three AI flows defined below.
 4. A refusal leaves a useful local degradation and does not block prayer, the
    journal, recordings or reminders.
-5. The client sends the minimum content needed for the selected purpose. Bible
-   API and its logs do not persist prayer content.
+5. The client sends the minimum content needed for the selected purpose. By
+   default, Bible API and its logs do not persist prayer content.
 6. Production prayer content may be processed only through a paid AI service
    whose data terms have been reviewed and whose optional logging and data
    sharing are disabled.
@@ -31,7 +31,7 @@ has no account and does not know the person's name.
 
 | Data | Device storage | Network use | Retention and deletion |
 | --- | --- | --- | --- |
-| Prayer topic, generated questions, typed answers and takeaway | `lampada.db` in Expo SQLite | The topic may be sent for core AI processing. Answers may be sent only under the separate answer-context consent. | Kept locally until the prayer or all local data is deleted. Bible API does not persist the content. |
+| Prayer topic, generated questions, typed answers and takeaway | `lampada.db` in Expo SQLite | The topic may be sent for core AI processing. Answers may be sent only under the separate answer-context consent. | Kept locally until the prayer or all local data is deleted. Bible API does not persist the content outside the controlled diagnostic exception below. |
 | Voice recordings | M4A files in the app document directory; portable paths in SQLite | A selected file may be sent only for transcription and only after transcription consent. It is never part of question or scripture context as audio. | Kept locally until the recording, prayer or all local data is deleted. Bible API reads the upload in memory and does not persist it. |
 | Transcripts | `recordings.transcript` in SQLite | Returned by transcription; later treated as an answer and sent as context only under answer-context consent. | Same local lifetime as the recording. Bible API does not persist the transcript. |
 | Scripture responses, history and favourites | SQLite snapshots and canonical identifiers | Selection sends language, translation and exclusions. Topic and replies are included only when their consent gates allow them. | Local cache and history remain until local data is wiped; favourites remain until removed or wiped. Request-derived server data is not cached. |
@@ -41,7 +41,28 @@ has no account and does not know the person's name.
 | Reminder schedule | SQLite and operating-system local notifications | Never sent to a push service. | Until changed, disabled or local data is wiped. |
 | Prayer days | `prayed_days` in SQLite | Never transmitted. | Deleting a prayer does not erase its historical day; a full wipe does. |
 | Diagnostics | Local `lampada-diagnostics.log` | Not transmitted by the app. | Deleted by a full wipe; it must not contain prayer content. |
-| API request metadata | No client analytics store | Bible API sees the endpoint and network peer. Private AI endpoints store endpoint, method, status, latency and an HMAC pseudonym with an empty user agent. | Raw Bible API statistics are deleted after 14 days; permanent daily aggregates contain counts only. Request and response bodies are never logged. |
+| API request metadata | No client analytics store | Bible API sees the endpoint and network peer. Private AI endpoints store endpoint, method, status, latency and an HMAC pseudonym with an empty user agent. | Raw Bible API statistics are deleted after 14 days; permanent daily aggregates contain counts only. Request and response bodies are not logged in normal operation or in production. The controlled diagnostic exception below writes to the local Docker service log, not to statistics. |
+
+## Local/test incident diagnostic logging
+
+`AI_QUESTION_LOG_PROVIDER_BODIES` is `false` by default. It may be set to
+`true` only for a defined incident investigation on a controlled local or test
+Bible-API server and only with the product owner's explicit approval. It is
+prohibited in production.
+
+When enabled, it logs the question-provider request payload and raw response
+body for `POST /api/ai/question`. These bodies can contain the system prompt
+and prayer-derived content. They must never include request headers, provider
+URLs, credentials or `Authorization`. If the configured API key appears in a
+logged body, it is replaced with `[REDACTED_API_KEY]`.
+
+The local Docker logging configuration must use finite rotation limits, so the
+diagnostic records have bounded retention. Turning the setting back to `false`
+stops new body records but does not delete records already held by Docker. At
+the end of an investigation, record the owner approval, affected container and
+time window, then purge the records by removing and recreating only that
+specific Bible-API container with the setting `false`. Do not purge unrelated
+containers or shared Docker logs.
 
 ## AI purposes and consent
 
@@ -112,7 +133,9 @@ No legacy state silently produces `allowed` under the new contract.
 The current external AI provider is Google Gemini, called by Bible API through
 `generativelanguage.googleapis.com`. Bible API forwards content in memory and
 does not store prayer topics, replies, recordings, transcripts or generated
-responses. It records only the metadata described above.
+responses in normal operation or production. It records only the metadata
+described above, except for the explicitly approved local/test incident
+diagnostic.
 
 Production must use a Gemini API project with active Cloud Billing. Google's
 current terms say that unpaid Gemini API content may be used to improve Google
@@ -168,8 +191,12 @@ Garden site.
   and immediate withdrawal.
 - Network tests assert that disallowed fields and uploads are absent, not empty
   placeholders.
+- Bible API tests cover the default-off diagnostic switch and API-key redaction;
+  a local/test incident check verifies finite Docker log rotation and the
+  documented single-container purge/recreate after body logging is disabled.
 - The release checklist verifies paid billing, disabled Gemini logging/data
-  sharing, the deployed provider and matching public documents.
+  sharing, diagnostic body logging disabled, the deployed provider and
+  matching public documents.
 - A human verifies disclosure wording and App Store Privacy answers. This is an
   engineering policy, not a substitute for legal review.
 
