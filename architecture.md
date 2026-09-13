@@ -7,6 +7,10 @@ data preparation, the Bible Garden app and the Lampada prayer app.
 
 **Principle**: data is prepared in the admin contour, and only verified and finalized data reaches the public contour via export.
 
+The provider and model live in a particular deployment are operational facts,
+not architectural ones. The stable selection policy is recorded in
+[ADR-0002](decisions/0002-ai-model-provider-policy.md).
+
 ```mermaid
 graph TB
     subgraph Clients
@@ -15,8 +19,8 @@ graph TB
         LAMPADA[Lampada-Mobile<br/>Expo / React Native]
     end
 
-    subgraph External AI
-        GEMINI[Google Gemini API]
+    subgraph AI processing
+        AI[Configured AI provider]
     end
 
     subgraph Admin Contour
@@ -39,7 +43,7 @@ graph TB
     IOS -->|API Key| PUB_API
     LAMPADA -->|API Key| PUB_API
     PUB_API --> PUB_DB
-    PUB_API -->|consent-gated prayer content| GEMINI
+    PUB_API -->|consent-gated prayer content| AI
 
     PUB_API -->|import| ADM_API
 ```
@@ -369,12 +373,12 @@ sequenceDiagram
     participant CepAdmin as cep_admin
     participant CepPublic as cep_public
 
-    Operator->>Public: GET /api/import[?translation=syn]
-    Public->>Admin: GET /api/data[?translation=syn]
+    Operator->>Public: GET /api/import?translation=syn
+    Public->>Admin: GET /api/data?translation=syn
     Admin->>CepAdmin: SELECT (active data + COALESCE manual_fixes)
     CepAdmin-->>Admin: data
     Admin-->>Public: JSON
-    Public->>CepPublic: TRUNCATE + INSERT
+    Public->>CepPublic: apply one translation transaction
     CepPublic-->>Public: OK
     Public-->>Operator: report (record counts)
 ```
@@ -432,10 +436,10 @@ Returns finalized data as JSON. The `translation` parameter (translation alias) 
 Calls Dashboard-API, fetches data, loads into `cep_public`:
 
 **Without parameter** — full resync:
-1. Requests `GET /api/data` from Dashboard-API
-2. Clears all target tables
-3. Inserts received data
-4. Returns report: record count per table
+1. Requests `GET /api/data/manifest` and writes the reference tables
+2. Fetches each active translation separately and applies it in its own
+   transaction, without a global `TRUNCATE`
+3. Verifies the imported counts against the manifest and returns the report
 
 **With parameter** `?translation=syn` — single translation update:
 1. Requests `GET /api/data?translation=syn` from Dashboard-API
