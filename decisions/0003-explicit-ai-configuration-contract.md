@@ -43,10 +43,6 @@ Operators must keep embedding identity aligned with the stored index and
 rebuild or select the matching index when that identity changes. Runtime
 endpoints and secrets remain operational documentation in `Deploy`.
 
-## Status
-
-Accepted
-
 ## References
 
 - [ADR-0002: AI model provider policy](0002-ai-model-provider-policy.md)
