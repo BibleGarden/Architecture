@@ -14,15 +14,18 @@ topology, or deployment.
 ## Decision
 
 `AI_ENABLED` is the only explicit switch for the AI surface. When enabled,
-question, scripture rewrite, scripture rerank, and transcription each state
-their own provider and model; a remote stage also states its own endpoint and
-key. An explicitly present empty remote key means that endpoint is
-unauthenticated. A missing key is invalid.
+question, scripture rewrite, and scripture rerank each state their own
+provider, model, and present stage key: `gemini` forbids an endpoint, while
+`openai_compat` requires its own endpoint; an explicitly present empty remote
+key means no Authorization header, and a missing key is invalid. Transcription
+uses those same remote rules, or its only local provider requires a model path
+and forbids endpoint and key.
 
-Embeddings are an independent mandatory stage in every deployment. Its
-provider and model identity, including the vector dimensions, identify the
-index being read or built; its remote endpoint and key are likewise
-stage-specific.
+Embeddings are an independent mandatory stage in every deployment; their
+provider, model identity, and vector dimensions identify the index being read
+or built. `openai_compat` requires `EMBEDDING_ENDPOINT` and a present
+`EMBEDDING_API_KEY`; `gemini` requires that key and forbids an endpoint; local
+requires a model path and forbids endpoint and key.
 
 There are no legacy aliases, shared `AI_OPENAI_COMPAT_*` values, or
 `GEMINI_API_KEY` switch or inheritance. Startup rejects incomplete,
