@@ -26,10 +26,6 @@ this public ADR and are maintained in the private `Deploy` repository.
    It must not be reintroduced without new evaluation evidence.
 4. Gemma 4 31B IT was selected for question generation after Qwen3-30B did not
    meet the required question quality.
-5. Evaluation scenarios and thresholds are controlled artefacts. Unlabelled
-   top-1 results are reported for product review rather than self-labelled.
-   With vLLM at temperature 0, compare warm runs when evaluating a changed
-   prompt.
 
 ## Consequences
 
