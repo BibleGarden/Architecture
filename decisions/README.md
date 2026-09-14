@@ -11,3 +11,4 @@ BibleGarden repository or an external system contract.
 | [0004](0004-explicit-openai-reasoning-effort.md) | Accepted | Require an explicit reasoning-effort enum for each OpenAI-compatible chat stage |
 | [0005](0005-server-controlled-ai-prefetch.md) | Accepted | Let the server disable or limit speculative question and scripture requests |
 | [0006](0006-approved-ai-model-selection.md) | Accepted | Select models for each AI stage while retaining ADR-0002's availability requirement |
+| [0007](0007-local-openrouter-gemma-question-trial.md) | Accepted | Run the local/test Gemma question trial through OpenRouter without changing production |

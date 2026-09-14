@@ -1,0 +1,54 @@
+# ADR-0007: Local OpenRouter Gemma question trial
+
+- Status: Accepted
+- Date: 2026-09-14
+- Approval: Maria's direct local/test instruction, 2026-09-14
+
+## Context
+
+The local Cerebras Qwen question trial recorded in ADR-0004 produced questions
+Maria judged awkward. Gemma was evaluated as a no-thinking question model, but
+ADR-0006 is the current approved production model selection and keeps Cerebras
+Qwen with `low` reasoning for production questions.
+
+This decision records a separately configured local/test trial. It does not
+replace the history in ADR-0004 or the production selection in ADR-0006.
+
+## Decision
+
+For the local/test question stage only, use the paid OpenRouter provider
+(`openrouter`) with model `google/gemma-4-31b-it`. Its base endpoint is
+`https://openrouter.ai/api/v1`; question calls use
+`https://openrouter.ai/api/v1/chat/completions`.
+
+The configuration requires `AI_QUESTION_REASONING_EFFORT=none`. The request
+maps that value to `reasoning: {"enabled": false}` and must not send the flat
+`reasoning_effort` field. It uses `AI_QUESTION_MAX_TOKENS=4096` and a 20-second
+timeout.
+
+Every request includes the strict OpenRouter provider policy
+`provider.allow_fallbacks=false` and `provider.data_collection=deny`. A
+fallback provider or data-collection preference must not be inferred.
+
+The OpenRouter `GET /api/v1/models` catalogue snapshot read on 2026-09-14
+lists this model at $0.09 per million input tokens and $0.34 per million output
+tokens on its main route. This is point-in-time evidence, not a promise of
+future availability, routing or price.
+
+## Consequences
+
+The local/test question calls become paid calls to OpenRouter. The trial does
+not change the production provider policy, production topology, production
+consent, or the production model selection in ADR-0006. It does not change
+scripture rewrite or rerank.
+
+The normative privacy document continues to name Google Gemini as the current
+production provider. Before OpenRouter can receive production prayer content,
+the provider-change requirements in that document apply; this local/test trial
+does not satisfy them.
+
+## References
+
+- [ADR-0004: Explicit OpenAI reasoning effort](0004-explicit-openai-reasoning-effort.md)
+- [ADR-0006: Approved AI model selection](0006-approved-ai-model-selection.md)
+- [Lampada data processing rules](../privacy/lampada-data-processing.md)
