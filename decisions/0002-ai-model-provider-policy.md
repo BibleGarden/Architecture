@@ -1,6 +1,6 @@
 # ADR-0002: AI models must preserve worldwide availability
 
-- Status: Accepted
+- Status: Superseded for model selection by ADR-0006; worldwide-availability principle retained
 - Date: 2026-09-06
 
 ## Context
@@ -19,13 +19,12 @@ this public ADR and are maintained in the private `Deploy` repository.
 1. The target AI contour uses self-hosted models or models whose licence and
    terms do not impose age or country restrictions on the application. An
    external Anthropic or OpenAI API is not a substitute for this requirement.
-2. Qwen3-30B was selected for scripture retrieval rewrite and rerank, and
-   bge-m3 for embeddings. The retrieval pipeline remains rewrite → embeddings
-   and BM25 → interleave → blacklist → diversity → rerank.
+2. The retrieval pipeline remains rewrite → embeddings and BM25 → interleave
+   → blacklist → diversity → rerank. ADR-0006 records the selected models for
+   its stages.
 3. The measured replacement of rewrite with a semantic-only index was rejected.
    It must not be reintroduced without new evaluation evidence.
-4. Gemma 4 31B IT was selected for question generation after Qwen3-30B did not
-   meet the required question quality.
+4. ADR-0006 replaces the question-generation model selection.
 
 ## Consequences
 
@@ -36,4 +35,5 @@ this public ADR and are maintained in the private `Deploy` repository.
 
 - [System architecture](../architecture.md)
 - [ADR-0001: Lampada AI processing consent](0001-lampada-ai-data-processing.md)
+- [ADR-0006: Approved AI model selection](0006-approved-ai-model-selection.md)
 - [AI Evaluation](https://github.com/BibleGarden/AI-Evaluation)
