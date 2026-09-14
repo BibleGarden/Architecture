@@ -27,13 +27,25 @@ maps that value to `reasoning: {"enabled": false}` and must not send the flat
 timeout.
 
 Every request includes the strict OpenRouter provider policy
-`provider.allow_fallbacks=false` and `provider.data_collection=deny`. A
-fallback provider or data-collection preference must not be inferred.
+`provider.order=["venice/bf16"]`, `provider.allow_fallbacks=false` and
+`provider.data_collection=deny`. The full endpoint slug, rather than the base
+`venice` slug, is required: no other Venice endpoint or provider is eligible,
+and a failed Venice request fails rather than automatically moving elsewhere.
 
-The OpenRouter `GET /api/v1/models` catalogue snapshot read on 2026-09-14
-lists this model at $0.09 per million input tokens and $0.34 per million output
-tokens on its main route. This is point-in-time evidence, not a promise of
-future availability, routing or price.
+Maria selected `venice/bf16` for the trial's answer quality. The endpoint
+catalogue identifies it as BF16; OpenRouter documents that lower-precision
+quantized variants can degrade performance for some prompts. This is a
+quality-oriented selection, not a claim that BF16 is a measured quality
+benchmark.
+
+Observed endpoint data is point-in-time only. On 2026-09-14, a direct read of
+OpenRouter's `GET /api/v1/models/google/gemma-4-31b-it/endpoints` catalogue
+reported the `venice/bf16` endpoint as `status=0`, with 99.84410185345574%
+uptime for the preceding five minutes (99.87859669247682% for 30 minutes). It
+listed a 256,000-token context, an 8,192-token completion maximum, and prices
+of $0.12 per million input tokens and $0.36 per million output tokens. The
+catalogue observation is not an SLA or a promise of future availability,
+routing, quality or price.
 
 ## Consequences
 
@@ -41,6 +53,11 @@ The local/test question calls become paid calls to OpenRouter. The trial does
 not change the production provider policy, production topology, production
 consent, or the production model selection in ADR-0006. It does not change
 scripture rewrite or rerank.
+
+At the time of this decision, the inspected question runtime sends the existing
+fallback and data-collection fields but does not yet send
+`provider.order=["venice/bf16"]`. It must implement this request contract
+before a local/test call may be described as pinned to Venice BF16.
 
 The normative privacy document continues to name Google Gemini as the current
 production provider. Before OpenRouter can receive production prayer content,
@@ -52,3 +69,5 @@ does not satisfy them.
 - [ADR-0004: Explicit OpenAI reasoning effort](0004-explicit-openai-reasoning-effort.md)
 - [ADR-0006: Approved AI model selection](0006-approved-ai-model-selection.md)
 - [Lampada data processing rules](../privacy/lampada-data-processing.md)
+- [OpenRouter provider routing](https://openrouter.ai/docs/guides/routing/provider-selection)
+- [OpenRouter Gemma endpoint catalogue](https://openrouter.ai/api/v1/models/google/gemma-4-31b-it/endpoints)
