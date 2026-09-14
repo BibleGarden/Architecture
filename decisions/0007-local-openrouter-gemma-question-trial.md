@@ -27,7 +27,7 @@ maps that value to `reasoning: {"enabled": false}` and must not send the flat
 timeout.
 
 Every request includes the strict OpenRouter provider policy
-`provider.order=["venice/bf16"]`, `provider.allow_fallbacks=false` and
+`provider.only=["venice/bf16"]`, `provider.allow_fallbacks=false` and
 `provider.data_collection=deny`. The full endpoint slug, rather than the base
 `venice` slug, is required: no other Venice endpoint or provider is eligible,
 and a failed Venice request fails rather than automatically moving elsewhere.
@@ -56,7 +56,7 @@ scripture rewrite or rerank.
 
 At the time of this decision, the inspected question runtime sends the existing
 fallback and data-collection fields but does not yet send
-`provider.order=["venice/bf16"]`. It must implement this request contract
+`provider.only=["venice/bf16"]`. It must implement this request contract
 before a local/test call may be described as pinned to Venice BF16.
 
 The normative privacy document continues to name Google Gemini as the current
