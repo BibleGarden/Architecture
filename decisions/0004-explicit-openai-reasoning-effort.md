@@ -32,6 +32,27 @@ task `86cbh1apk`. This trial is not a production model-policy or topology
 change, does not self-label the four ungraded top-1 results, and leaves
 production untouched.
 
+### Amendment note — 2026-09-14
+
+This replaces the local trial settings stated above. Maria's manual product
+check found questions on `none` unacceptable and questions on `low` good, so
+the local Cerebras `qwen-3.8-27b` question stage uses
+`reasoning_effort=low`. The verified local configuration is deliberately
+stage-specific: scripture rewrite remains `qwen-3.8-27b` with `none`, while
+scripture rerank is configured as `qwen3-30b-a3b-instruct-2507` with `omit`.
+This amendment makes no rewrite or rerank change.
+
+Provider-body diagnostics also showed that a question call can spend all
+`1024` completion tokens on reasoning, return no content, and become a `502`.
+The accepted remedy is the separate operational question ceiling
+`AI_QUESTION_MAX_TOKENS=4096`; it becomes live with the coordinated runtime
+change. It is a guardrail, not a model, reasoning-mode, or production-policy
+change.
+
+Verification: Maria's manual product check on 2026-09-14; the local
+stage-specific configuration and the diagnostic provider bodies were inspected
+on the same date.
+
 ## Consequences
 
 Every OpenAI-compatible chat-stage configuration now makes its reasoning
