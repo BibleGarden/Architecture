@@ -24,7 +24,8 @@ this public ADR and are maintained in the private `Deploy` repository.
    its stages.
 3. The measured replacement of rewrite with a semantic-only index was rejected.
    It must not be reintroduced without new evaluation evidence.
-4. ADR-0006 replaces the question-generation model selection.
+4. ADR-0006 replaces the original model selection; ADR-0011 subsequently
+   replaces its question-generation selection.
 
 ## Consequences
 

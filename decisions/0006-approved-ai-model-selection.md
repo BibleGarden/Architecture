@@ -1,6 +1,6 @@
 # ADR-0006: Approved AI model selection
 
-- Status: Accepted
+- Status: Accepted for non-question stages; question selection superseded by ADR-0011
 - Date: 2026-09-14
 - Supersedes: the model-selection parts of ADR-0002
 - Approval: Maria's production-deployment instruction, 2026-09-14
@@ -17,7 +17,9 @@ operational facts and remain in `Deploy`.
 
 ## Decision
 
-Use the following model selection:
+Use the following model selection. The question row records the 2026-09-14
+selection; [ADR-0011](0011-gemini-production-questions.md) replaces it with
+Gemini for production questions from 2026-09-15.
 
 | Stage | Model | Transport decision |
 | --- | --- | --- |
