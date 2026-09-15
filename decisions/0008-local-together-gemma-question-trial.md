@@ -1,9 +1,9 @@
 # ADR-0008: Local Together Gemma question trial
 
-- Status: Accepted
+- Status: Integration retained; interactive trial rejected
 - Date: 2026-09-14
 - Amended: 2026-09-15
-- Approval: Maria's instruction to retain Gemma on Together and explicitly disable reasoning
+- Approval: Maria's instruction to retain the implementation after rejecting interactive use on latency
 
 ## Context
 
@@ -12,7 +12,7 @@ while retaining Gemma. Production model selection remains governed by ADR-0006.
 
 ## Decision
 
-Use the dedicated question-only `AI_QUESTION_PROVIDER=together` profile with
+Retain the optional question-only `AI_QUESTION_PROVIDER=together` profile with
 model `google/gemma-4-31B-it`, base endpoint `https://api.together.ai/v1`, a
 non-empty stage API key and `AI_QUESTION_REASONING_EFFORT=none`. Startup must
 reject any other model, endpoint or reasoning value for this profile, a missing
@@ -23,6 +23,11 @@ The client maps `none` to `reasoning={"enabled":false}` and requests
 `reasoning_effort` or OpenRouter `provider` routing fields. Remove the
 OpenRouter-specific routing variable. No alternative provider or model is
 configured on failure.
+
+Together is not selected for practical interactive question generation: Maria
+rejected the trial on 2026-09-15 because response times were unstable. Retaining
+the integration permits deliberate future trials; it is not a production
+recommendation or a decision to select a replacement provider.
 
 Retain the operational ceilings of 4,096 output tokens and 20 seconds per
 question call. Scripture rewrite, rerank, transcription and embeddings remain
@@ -35,21 +40,18 @@ above as Gemma 4 31B-it FP8. This retains the model family but changes serving
 precision from the previous Venice BF16 route; equivalent answer quality has
 not been established.
 
-Direct diagnostics from the local container on 2026-09-14 used synthetic
-Russian question prompts. Paired requests showed reasoning content when the
-control was omitted and none with `reasoning={"enabled":false}`. Requests
-with reasoning disabled returned valid question JSON, but timings varied and
-did not establish a latency improvement. The former omitted-reasoning API
-profile also produced a provider timeout and HTTP 502. These observations
-motivate explicit disabling; they do not establish latency or quality
-acceptance.
+Direct diagnostics from the local container on 2026-09-14 showed reasoning
+content when the control was omitted and none with explicit disabling. Active
+API requests and matched provider logs on 2026-09-15 verified the dedicated
+request contract and valid question responses without reasoning fields.
 
-On 2026-09-15, the active local API passed its health check and one synthetic
-Russian first-question request returned HTTP 200 in 4.007 seconds. Matched
-provider logs confirmed the disabled-reasoning object and JSON response format,
-with no flat reasoning effort or provider routing fields. The response had no
-reasoning fields. Other stages and credentials were preserved. This verifies
-one successful request; Maria's quality review remains pending.
+The same active profile nevertheless returned HTTP 502 after timeouts of
+17.164 and 17.015 seconds with reasoning disabled; the identical next payload
+returned HTTP 200 in 1.511 seconds. This observed latency instability is the
+basis for rejecting interactive use, recorded in
+[incident 86cbhbakd](https://app.clickup.com/t/86cbhbakd). The other stages and
+credentials were preserved. At trial close the local runtime still used
+Together; no replacement had been selected or applied.
 
 This local trial sends question content to Together. It does not approve
 Together for production or change production configuration, consent, prompts
