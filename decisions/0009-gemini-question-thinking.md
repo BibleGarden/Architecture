@@ -38,8 +38,9 @@ timeouts and output-token limits are unchanged.
 Existing question configurations for either reviewed model must add an explicit
 thinking level before startup. `minimal` means little to no thinking, not a
 guarantee that thinking is disabled. Credentials and active configuration are
-operational facts in `Deploy`. Production selection remains governed by
-ADR-0006; trial measurements and comparisons belong in `AI-Evaluation`.
+operational facts in `Deploy`. Production questions are selected by ADR-0011;
+ADR-0006 governs the other stages. Trial measurements and comparisons belong
+in `AI-Evaluation`.
 
 ## References
 
@@ -47,3 +48,4 @@ ADR-0006; trial measurements and comparisons belong in `AI-Evaluation`.
 - [GenerateContent ThinkingConfig](https://ai.google.dev/api/generate-content#ThinkingConfig)
 - [ADR-0003: Explicit AI configuration contract](0003-explicit-ai-configuration-contract.md)
 - [ADR-0006: Approved production model selection](0006-approved-ai-model-selection.md)
+- [ADR-0011: Production Gemini questions](0011-gemini-production-questions.md)
