@@ -1,43 +1,49 @@
-# ADR-0009: Explicit thinking control for Gemini 3.8 Flash questions
+# ADR-0009: Explicit thinking levels for Gemini Flash questions
 
 - Status: Accepted
 - Date: 2026-09-15
 
 ## Context
 
-Google's Gemini 3.8 Flash supports internal thinking. Question generation needs
-an explicit choice rather than inheriting the provider's thinking default.
-The existing transport uses the `generateContent` API.
+The reviewed Gemini Flash question models use Google's `generateContent`
+thinking-level control. Each model's supported levels must be validated
+explicitly instead of inheriting a provider default.
 
 ## Decision
 
-For question generation with `AI_QUESTION_PROVIDER=gemini` and
-`AI_QUESTION_MODEL=gemini-3.8-flash`, require
-an explicit `AI_QUESTION_REASONING_EFFORT` of `low`, `medium` or `high`.
-The client maps it to `generationConfig.thinkingConfig.thinkingLevel`
-(`LOW`, `MEDIUM` or `HIGH`). Missing or unsupported values, including `none`
-and `omit`, must stop startup for this exact provider/model pair.
+For question generation with `AI_QUESTION_PROVIDER=gemini`, require an explicit
+`AI_QUESTION_REASONING_EFFORT` for these model IDs:
 
-The endpoint is supplied by the Gemini transport; `AI_QUESTION_ENDPOINT` and
-`AI_QUESTION_OPENROUTER_PROVIDER_ENDPOINT` must be absent. The question-stage
-key must be non-empty. Gemini uses neither flat OpenAI reasoning effort nor
-OpenRouter/Together reasoning and routing objects.
+| Model | Allowed levels |
+| --- | --- |
+| `gemini-3.8-flash` | `low`, `medium`, `high` |
+| `gemini-3.5-flash-lite` | `minimal`, `low`, `medium`, `high` |
 
-Other Gemini models and stages retain their existing configuration contract,
-as do OpenRouter, Together and the generic OpenAI-compatible profile. No
-prompt, retry, timeout or output-token-limit change accompanies this mapping.
+The client maps the selected value to
+`generationConfig.thinkingConfig.thinkingLevel` using Google's uppercase enum.
+Missing, padded or unsupported values must stop startup. In particular,
+`none` and `omit` are not supported, and `minimal` is valid only for the
+Flash Lite profile, not for Gemini 3.8 or the generic OpenAI-compatible client.
+
+The Gemini transport supplies the endpoint. `AI_QUESTION_ENDPOINT` and
+`AI_QUESTION_OPENROUTER_PROVIDER_ENDPOINT` must be absent; the question-stage
+key must be non-empty. Gemini receives no OpenAI/OpenRouter reasoning objects.
+
+Other Gemini models and stages, OpenRouter, Together and generic
+OpenAI-compatible profiles retain their existing contracts. Prompts, retries,
+timeouts and output-token limits are unchanged.
 
 ## Consequences
 
-Thinking depth is explicit for the selected question model; `low` is the
-lowest documented level, not a claim that thinking is disabled. Credential
-sources and local runtime configuration are operational facts in `Deploy`.
-Production model selection remains governed by ADR-0006. Trial measurements
-and provider comparisons belong in `AI-Evaluation`.
+Existing question configurations for either reviewed model must add an explicit
+thinking level before startup. `minimal` means little to no thinking, not a
+guarantee that thinking is disabled. Credentials and active configuration are
+operational facts in `Deploy`. Production selection remains governed by
+ADR-0006; trial measurements and comparisons belong in `AI-Evaluation`.
 
 ## References
 
+- [Gemini thinking guide](https://ai.google.dev/gemini-api/docs/thinking)
 - [GenerateContent ThinkingConfig](https://ai.google.dev/api/generate-content#ThinkingConfig)
 - [ADR-0003: Explicit AI configuration contract](0003-explicit-ai-configuration-contract.md)
-- [ADR-0004: Explicit reasoning configuration](0004-explicit-openai-reasoning-effort.md)
 - [ADR-0006: Approved production model selection](0006-approved-ai-model-selection.md)
