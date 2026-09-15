@@ -12,3 +12,4 @@ BibleGarden repository or an external system contract.
 | [0005](0005-server-controlled-ai-prefetch.md) | Accepted | Let the server disable or limit speculative question and scripture requests |
 | [0006](0006-approved-ai-model-selection.md) | Accepted | Select models for each AI stage while retaining ADR-0002's availability requirement |
 | [0008](0008-together-question-profile.md) | Accepted | Isolate the optional Together question profile and explicitly disable reasoning |
+| [0009](0009-gemini-question-thinking.md) | Accepted | Require model-specific thinking levels for reviewed Gemini Flash question models |
