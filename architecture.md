@@ -405,8 +405,30 @@ flowchart LR
 
 - **Bible-API `middleware.py`**: `RequestStatsMiddleware` — logs every request in a background thread. Normalizes dynamic paths (`/api/audio/*`, `/api/translations/*/books`). Excludes `/docs`, `/openapi.json`, `/redoc`, `/favicon.ico`.
 - **Bible-API `aggregate_stats.py`**: Cron script (`0 2 * * *`) — aggregates yesterday's raw data into `api_request_daily_stats`, purges raw records older than 14 days.
-- **Dashboard-API `stats.py`**: Two JWT-protected endpoints — `GET /api/stats/summary?days=30` (totals, daily breakdown, top endpoints, today's live data) and `GET /api/stats/recent?limit=50` (raw recent requests). Reads from `cep_public` via cross-DB queries.
-- **Dashboard-Web `ApiStats.vue`**: Summary cards, daily requests line chart (Chart.js), top endpoints table, recent requests table with pagination and period selector (7/30/90 days).
+- **Dashboard-API `stats.py`**: Two JWT-protected endpoints that read
+  `cep_public` through cross-database queries:
+  - `GET /api/stats/summary?days=30` returns totals, the immediately preceding
+    period, traffic groups, daily totals and group series, filtered top
+    endpoints, slow endpoints from retained raw rows, and today's live data.
+    `days` is an exact calendar window including today. Top endpoints can be
+    narrowed with `top_group=scripture|ai|other` and `top_endpoint=<substring>`;
+    filtering happens before the top-20 limit.
+  - `GET /api/stats/recent?limit=50` returns retained raw requests and accepts
+    `endpoint`, `status`, `method`, and `client_ip` filters.
+- **Traffic grouping**: `/api/ai/*` belongs to `ai`; the remaining `/api/*`
+  routes belong to `scripture`; all other paths belong to `other`.
+- **Trend availability**: request, error, and response-time comparisons use
+  equal adjacent calendar windows. The current unique-IP total covers the
+  available raw portion of the selected period (at most 14 calendar dates).
+  Its comparison is returned only when retained raw rows cover both complete
+  windows; otherwise the previous value is `null` rather than a partial count.
+- **Dashboard-Web `ApiStats.vue`**: Summary and traffic-group cards, period
+  deltas, switchable daily metrics and Scripture/AI series, server-filtered top
+  endpoints, slow endpoints, and server-filtered recent requests.
+
+Contract checked on 2026-09-20 against `Dashboard-API/app/stats.py`,
+`Dashboard-Web/src/Components/ApiStats.vue`, and Bible-API's
+`app/aggregate_stats.py` retention job.
 
 ### Tables (in cep_public)
 
