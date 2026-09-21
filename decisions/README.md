@@ -15,3 +15,4 @@ BibleGarden repository or an external system contract.
 | [0009](0009-gemini-question-thinking.md) | Accepted | Require model-specific thinking levels for reviewed Gemini Flash question models |
 | [0010](0010-gemini-question-service-tier.md) | Accepted | Select and verify the Gemini question service tier explicitly |
 | [0011](0011-gemini-production-questions.md) | Accepted | Use Gemini 3.8 Flash with LOW thinking and Standard service for production questions |
+| [0012](0012-static-site-generator.md) | Accepted | Generate bible.garden and lampada.app with a Python script and commit the HTML |
