@@ -34,10 +34,18 @@ deterministic (no timestamps), so a clean tree proves the output is current.
 
 URL structure: `/`, `/ru/`, `/uk/` for landing pages and `/articles/<slug>/`,
 `/ru/articles/<slug>/`, `/uk/articles/<slug>/` for articles, one slug per topic
-in every language; `hreflang` links only the versions that exist. Legacy
-`?lang=` links are redirected client-side. Hand-written pages with permanent
-App Store URLs (`privacy.html`, `lampada/privacy/`, `lampada/support/`) stay
-outside the generator.
+in every language; `hreflang` links only the published versions. Hand-written
+pages with permanent App Store URLs (`privacy.html`, `lampada/privacy/`,
+`lampada/support/`) stay outside the generator.
+
+`/` is the English page and `x-default`, not a redirector to `/en/`: the App
+Store listing and already indexed results link to `/`, and crawlers without
+JavaScript must find content there. Language selection stays client-side: a
+legacy `?lang=` link redirects to the language URL; on `/` a language chosen
+explicitly through the switcher (kept in `localStorage`, including English)
+wins, otherwise a browser that prefers `ru` or `uk` is sent to `/ru/` or
+`/uk/`. Crawlers and English-first browsers are never redirected, and the
+language versions of every page remain plain links (Maria, 2026-09-21).
 
 ## Alternatives considered
 
