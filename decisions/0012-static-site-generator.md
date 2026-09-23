@@ -40,12 +40,14 @@ pages with permanent App Store URLs (`privacy.html`, `lampada/privacy/`,
 
 `/` is the English page and `x-default`, not a redirector to `/en/`: the App
 Store listing and already indexed results link to `/`, and crawlers without
-JavaScript must find content there. Language selection stays client-side: a
-legacy `?lang=` link redirects to the language URL; on `/` a language chosen
-explicitly through the switcher (kept in `localStorage`, including English)
-wins, otherwise a browser that prefers `ru` or `uk` is sent to `/ru/` or
-`/uk/`. Crawlers and English-first browsers are never redirected, and the
-language versions of every page remain plain links (Maria, 2026-09-21).
+JavaScript must find content there. Language selection stays client-side and
+redirects only on landing pages: a legacy `?lang=` link to a landing page goes
+to its language URL; on `/` a language chosen explicitly through the switcher
+(kept in `localStorage`, including English) wins, otherwise a browser that
+prefers `ru` or `uk` is sent to `/ru/` or `/uk/`. Article and index pages
+never redirect and ignore `?lang=`. Crawlers and English-first browsers are
+never redirected, and the language versions of every page remain plain links
+(Maria, 2026-09-21).
 
 ## Alternatives considered
 
@@ -68,9 +70,10 @@ language versions of every page remain plain links (Maria, 2026-09-21).
   them; they must never be edited by hand.
 - Sources (`content/`, `templates/`, `sitegen/`) are served by nginx together
   with the output; `robots.txt` disallows them on bible.garden.
-- nginx still answers unknown URLs with `index.html` and status 200; serving the
-  generated `404.html` with status 404 needs an `error_page` rule on production,
-  tracked separately.
+- nginx still answers unknown URLs with `index.html` and status 200. Serving the
+  generated `404.html` with status 404 needs both `error_page 404 /404.html` and
+  replacing `try_files $uri $uri/ /index.html` with `try_files $uri $uri/ =404`
+  in the site server blocks on production; tracked separately.
 
 ## References
 
