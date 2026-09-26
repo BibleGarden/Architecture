@@ -16,3 +16,4 @@ BibleGarden repository or an external system contract.
 | [0010](0010-gemini-question-service-tier.md) | Accepted | Select and verify the Gemini question service tier explicitly |
 | [0011](0011-gemini-production-questions.md) | Accepted | Use Gemini 3.8 Flash with LOW thinking and Standard service for production questions |
 | [0012](0012-static-site-generator.md) | Accepted | Generate bible.garden and lampada.app with a Python script and commit the HTML |
+| [0013](0013-client-address-pseudonymization.md) | Accepted | Store keyed client-address pseudonyms in application statistics |
