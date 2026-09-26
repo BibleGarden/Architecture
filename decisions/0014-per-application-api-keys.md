@@ -18,8 +18,9 @@ named `API_KEY` is renamed byte-for-byte to `BIBLE_GARDEN_API_KEY` and identifie
 `lampada` and `ops`. The latter is used by monitoring, operator checks and
 live evaluations. `API_KEY` is rejected at startup. Missing, blank, padded or
 duplicate values are errors; the two new keys require at least 32 characters.
-Every candidate is checked with a constant-time byte comparator before the
-resolved name is used; matching the first candidate does not skip the others.
+The request key and each configured key are hashed with SHA-256. Every
+fixed-length digest is checked with `hmac.compare_digest`; matching the first
+candidate does not skip the others.
 
 Header authentication and audio query authentication both set the application
 on request state. A non-empty audio query key keeps precedence over the header:
@@ -34,8 +35,12 @@ receives its response.
 are keyed by date, endpoint and application. Overall `all` rows exist for each
 endpoint and for `_total_`, alongside per-application rows. Their distinct-client
 counts span applications without double counting shared pseudonyms.
-Rows recorded before the change are `unknown`, never retroactively attributed
-to Bible Garden. The dashboard shows request counts by application and filters
+Rows recorded before the change and requests written by the old Bible-API
+between schema migration and service replacement are `unknown`. Both columns
+retain `DEFAULT 'unknown'` so the old writer can keep inserting during that
+interval. Older rows are never retroactively attributed to Bible Garden. The
+new writer always supplies an explicit application. The dashboard shows
+request counts by application and filters
 retained raw requests by application.
 
 ## Consequences

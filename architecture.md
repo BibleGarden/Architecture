@@ -436,8 +436,8 @@ Contract updated on 2026-09-26 against `Dashboard-API/app/stats.py`,
 
 | Table | Retention | Purpose |
 |-------|-----------|---------|
-| `api_requests` | 14 days | Raw request log (application, endpoint, method, status, response time, keyed client pseudonym, user agent); rows before this change use `unknown` |
-| `api_request_daily_stats` | Permanent | Aggregates per day, endpoint and application, including overall `all` endpoint and `_total_` rows (historic rows use `unknown`) |
+| `api_requests` | 14 days | Raw request log (application, endpoint, method, status, response time, keyed client pseudonym, user agent); historical and pre-switch old-writer rows use `unknown` |
+| `api_request_daily_stats` | Permanent | Aggregates per day, endpoint and application, including overall `all` endpoint and `_total_` rows (historical and pre-switch rows use `unknown`) |
 
 ### Dashboard-API: `GET /api/data[?translation=alias]`
 
