@@ -30,6 +30,9 @@ issued before authentication (such as trailing-slash 307), unattributed 4xx
 validation responses, audio OPTIONS and health checks. A successful response
 without application is logged as an error and not recorded; the client still
 receives its response.
+Publication through `GET /api/import` and cache reset through
+`POST /api/cache/clear` require the `ops` identity because client keys are
+embedded in application bundles.
 
 `cep_public.api_requests` records the application; daily endpoint aggregates
 are keyed by date, endpoint and application. Overall `all` rows exist for each

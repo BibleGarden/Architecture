@@ -161,7 +161,7 @@ contract with optional provider logging and data sharing disabled.
 | POST | `/api/cache/clear` | Cache |
 | GET | `/api/import` | Import |
 
-Bible-API also runs `RequestStatsMiddleware` that logs authenticated API requests with application identity to `api_requests`. It excludes docs, `/api/health`, audio OPTIONS, authentication failures and unattributed 4xx responses. Dynamic paths are normalized (e.g. `/api/audio/*`, `/api/translations/*/books`).
+Bible-API also runs `RequestStatsMiddleware` that logs authenticated API requests with application identity to `api_requests`. It excludes docs, `/api/health`, audio OPTIONS and responses without an authenticated application. Dynamic paths are normalized (e.g. `/api/audio/*`, `/api/translations/*/books`). `GET /api/import` and `POST /api/cache/clear` require the `ops` identity.
 
 ### Dashboard-API
 
@@ -405,7 +405,7 @@ flowchart LR
 
 ### Components
 
-- **Bible-API `middleware.py`**: `RequestStatsMiddleware` — logs authenticated requests with `bible-garden`, `lampada` or `ops` identity in a background thread. Normalizes dynamic paths (`/api/audio/*`, `/api/translations/*/books`). Excludes docs, `/api/health`, audio OPTIONS, 403/404/405 and 4xx validation responses without an authenticated application.
+- **Bible-API `middleware.py`**: `RequestStatsMiddleware` — logs authenticated requests with `bible-garden`, `lampada` or `ops` identity in a background thread. Normalizes dynamic paths (`/api/audio/*`, `/api/translations/*/books`). Excludes docs, `/api/health`, audio OPTIONS, 403/404/405 and responses without an authenticated application.
 - **Bible-API `aggregate_stats.py`**: Cron script — aggregates past raw data by day and endpoint for each application and for `all`, plus per-application and overall daily totals; purges raw rows older than 14 days.
 - **Dashboard-API `stats.py`**: Two JWT-protected endpoints that read
   `cep_public` through cross-database queries:
