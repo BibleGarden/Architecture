@@ -30,8 +30,10 @@ After release, a one-off Bible-API command validates stored values with
 `ipaddress` and converts only raw IPv4/IPv6 addresses in bounded batches. Its
 dry run counts candidates without writing, and repeated runs skip converted
 rows. The AI rate limiter still receives the resolved real IP in memory and
-uses its existing HMAC client buckets. A separate nginx access-log change,
-decided in parallel, will remove IP addresses from that log.
+uses its existing HMAC client buckets. In this release, the production nginx
+access log omits IP address, user agent, referrer and query string, and nginx
+`error_log` is set to `crit`. Bible-API and Dashboard-API disable Uvicorn
+access logs.
 
 ## Consequences
 
