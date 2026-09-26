@@ -18,3 +18,4 @@ BibleGarden repository or an external system contract.
 | [0012](0012-static-site-generator.md) | Accepted | Generate bible.garden and lampada.app with a Python script and commit the HTML |
 | [0013](0013-client-address-pseudonymization.md) | Accepted | Store keyed client-address pseudonyms in application statistics |
 | [0014](0014-per-application-api-keys.md) | Accepted | Identify Bible-API callers by separate application keys and report traffic by application |
+| [0015](0015-production-utc-time.md) | Accepted | Store new production timestamps and aggregate new production days in UTC |
