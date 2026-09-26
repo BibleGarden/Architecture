@@ -94,7 +94,7 @@ Public read-only API for the iOS app. Minimal, fast, no DB writes (except import
 - **Auth**: API Key (`X-API-Key`)
 - **DB**: `cep_public` (SELECT only, INSERT during import and request stats logging)
 - **Production**: `https://api.bible.garden/api`
-- **Request stats**: middleware logs every request to `api_requests` table (fire-and-forget, background thread)
+- **Request stats**: middleware logs authenticated API requests with resolved application identity to `api_requests` (background thread)
 
 ### Dashboard-API
 
@@ -161,7 +161,7 @@ contract with optional provider logging and data sharing disabled.
 | POST | `/api/cache/clear` | Cache |
 | GET | `/api/import` | Import |
 
-Bible-API also runs `RequestStatsMiddleware` that logs every request (except /docs, /openapi.json, /redoc, /favicon.ico) to `api_requests` table. Dynamic paths are normalized (e.g. `/api/audio/*`, `/api/translations/*/books`).
+Bible-API also runs `RequestStatsMiddleware` that logs authenticated API requests with application identity to `api_requests`. It excludes docs, `/api/health`, audio OPTIONS, authentication failures and unattributed 4xx responses. Dynamic paths are normalized (e.g. `/api/audio/*`, `/api/translations/*/books`).
 
 ### Dashboard-API
 
@@ -385,13 +385,15 @@ sequenceDiagram
 
 ## 11. API Request Statistics
 
-Tracks Bible-API usage to monitor iOS app activity.
+Tracks Bible-API usage by Bible Garden, Lampada and operations.
 
 ### Architecture
 
 ```mermaid
 flowchart LR
-    IOS[iOS-App] -->|request| PUB[Bible-API]
+    IOS[Bible Garden] -->|request| PUB[Bible-API]
+    LAMP[Lampada] -->|request| PUB
+    OPS[Operations] -->|request| PUB
     PUB -->|middleware logs| RAW[(api_requests<br/>cep_public)]
     CRON[Cron 2:00 AM] -->|aggregate_stats.py| AGG[(api_request_daily_stats<br/>cep_public)]
     RAW -.->|yesterday's data| AGG
@@ -403,18 +405,18 @@ flowchart LR
 
 ### Components
 
-- **Bible-API `middleware.py`**: `RequestStatsMiddleware` — logs every request in a background thread. Normalizes dynamic paths (`/api/audio/*`, `/api/translations/*/books`). Excludes `/docs`, `/openapi.json`, `/redoc`, `/favicon.ico`.
-- **Bible-API `aggregate_stats.py`**: Cron script (`0 2 * * *`) — aggregates yesterday's raw data into `api_request_daily_stats`, purges raw records older than 14 days.
+- **Bible-API `middleware.py`**: `RequestStatsMiddleware` — logs authenticated requests with `bible-garden`, `lampada` or `ops` identity in a background thread. Normalizes dynamic paths (`/api/audio/*`, `/api/translations/*/books`). Excludes docs, `/api/health`, audio OPTIONS, 403/404/405 and 4xx validation responses without an authenticated application.
+- **Bible-API `aggregate_stats.py`**: Cron script — aggregates past raw data by day and endpoint for each application and for `all`, plus per-application and overall daily totals; purges raw rows older than 14 days.
 - **Dashboard-API `stats.py`**: Two JWT-protected endpoints that read
   `cep_public` through cross-database queries:
   - `GET /api/stats/summary?days=30` returns totals, the immediately preceding
-    period, traffic groups, daily totals and group series, filtered top
+    period, application breakdown, traffic groups, daily totals and group series, filtered top
     endpoints, slow endpoints from retained raw rows, and today's live data.
     `days` is an exact calendar window including today. Top endpoints can be
     narrowed with `top_group=scripture|ai|other` and `top_endpoint=<substring>`;
     filtering happens before the top-20 limit.
   - `GET /api/stats/recent?limit=50` returns retained raw requests and accepts
-    `endpoint`, `status`, `method`, and `client_ip` filters.
+    `endpoint`, `status`, `method`, `client_pseudonym` and `application` filters.
 - **Traffic grouping**: `/api/ai/*` belongs to `ai`; the remaining `/api/*`
   routes belong to `scripture`; all other paths belong to `other`.
 - **Trend availability**: request, error, and response-time comparisons use
@@ -422,11 +424,11 @@ flowchart LR
   available raw portion of the selected period (at most 14 calendar dates).
   Its comparison is returned only when retained raw rows cover both complete
   windows; otherwise the previous value is `null` rather than a partial count.
-- **Dashboard-Web `ApiStats.vue`**: Summary and traffic-group cards, period
+- **Dashboard-Web `ApiStats.vue`**: Summary, application and traffic-group cards, period
   deltas, switchable daily metrics and Scripture/AI series, server-filtered top
   endpoints, slow endpoints, and server-filtered recent requests.
 
-Contract checked on 2026-09-20 against `Dashboard-API/app/stats.py`,
+Contract updated on 2026-09-26 against `Dashboard-API/app/stats.py`,
 `Dashboard-Web/src/Components/ApiStats.vue`, and Bible-API's
 `app/aggregate_stats.py` retention job.
 
@@ -434,8 +436,8 @@ Contract checked on 2026-09-20 against `Dashboard-API/app/stats.py`,
 
 | Table | Retention | Purpose |
 |-------|-----------|---------|
-| `api_requests` | 14 days | Raw request log (endpoint, method, status, response_time_ms, client_ip, user_agent) |
-| `api_request_daily_stats` | Permanent | Aggregated per day+endpoint (request_count, unique_ips, avg_response_time_ms, error_count) |
+| `api_requests` | 14 days | Raw request log (application, endpoint, method, status, response time, keyed client pseudonym, user agent); rows before this change use `unknown` |
+| `api_request_daily_stats` | Permanent | Aggregates per day, endpoint and application, including overall `all` endpoint and `_total_` rows (historic rows use `unknown`) |
 
 ### Dashboard-API: `GET /api/data[?translation=alias]`
 
