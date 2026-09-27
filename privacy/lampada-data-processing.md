@@ -2,6 +2,7 @@
 
 - Status: Approved
 - Approved: 2026-09-03
+- Updated: 2026-09-27 (current providers, ClickUp 123pfqn0kzh)
 - Owner: product owner
 - Applies to: `Lampada-Mobile`, `Bible-API`, production infrastructure and the
   external AI provider
@@ -103,7 +104,8 @@ take account of typed answers and completed transcripts.
 Purpose: turn one chosen voice recording into a verbatim transcript.
 
 - Ask separately before the first upload. Explain that the M4A file is sent
-  through Bible API to Google Gemini only for transcription.
+  through Bible API to the company-hosted Whisper service only for
+  transcription; it does not reach Google.
 - Pressing `Transcribe` is the feature request but is not by itself informed
   consent.
 - On `undecided` or `denied`, the upload does not start. The local recording
@@ -130,8 +132,11 @@ No legacy state silently produces `allowed` under the new contract.
 
 ## Current provider and operating requirements
 
-The current external AI provider is Google Gemini, called by Bible API through
-`generativelanguage.googleapis.com`. Bible API forwards content in memory and
+The only external AI provider is Google Gemini, called by Bible API through
+`generativelanguage.googleapis.com` for question generation (ADR-0011) and for
+scripture rewrite and rerank (ADR-0016). Transcription (Whisper) and embeddings
+of the rewritten query (bge-m3) run on company-hosted services and do not reach
+Google. Bible API forwards content in memory and
 does not store prayer topics, replies, recordings, transcripts or generated
 responses in normal operation or production. It records only the metadata
 described above, except for the explicitly approved local/test incident
@@ -147,8 +152,8 @@ may process them in countries where Google or its agents operate.
 
 Release requirements:
 
-- active billing covers every model that can receive prayer content, including
-  question generation, transcription, scripture rewrite, embeddings and rerank;
+- active billing covers every Gemini model that can receive prayer content:
+  question generation, scripture rewrite and rerank;
 - developer-owned Gemini API logging is disabled;
 - no logs or datasets are shared with Google and no sensitive request is sent as
   feedback;

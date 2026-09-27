@@ -1,6 +1,6 @@
 # ADR-0006: Approved AI model selection
 
-- Status: Accepted for non-question stages; question selection superseded by ADR-0011
+- Status: Accepted for transcription and embeddings; questions superseded by ADR-0011, rewrite and rerank by ADR-0016
 - Date: 2026-09-14
 - Supersedes: the model-selection parts of ADR-0002
 - Approval: Maria's production-deployment instruction, 2026-09-14
