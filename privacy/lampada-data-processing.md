@@ -2,7 +2,7 @@
 
 - Status: Approved
 - Approved: 2026-09-03
-- Updated: 2026-09-27 (current providers, ClickUp 123pfqn0kzh)
+- Updated: 2026-09-28 (transcription processors, ADR-0017)
 - Owner: product owner
 - Applies to: `Lampada-Mobile`, `Bible-API`, production infrastructure and the
   external AI provider
@@ -104,8 +104,10 @@ take account of typed answers and completed transcripts.
 Purpose: turn one chosen voice recording into a verbatim transcript.
 
 - Ask separately before the first upload. Explain that the M4A file is sent
-  through Bible API to the company-hosted Whisper service only for
-  transcription; it does not reach Google.
+  through Bible API only for transcription, and that it is transcribed either by
+  the company-hosted Whisper service or by Google Gemini through Google's paid
+  API (ADR-0017). The notice names both processors, so switching between them
+  does not require new consent.
 - Pressing `Transcribe` is the feature request but is not by itself informed
   consent.
 - On `undecided` or `denied`, the upload does not start. The local recording
@@ -133,9 +135,11 @@ No legacy state silently produces `allowed` under the new contract.
 ## Current provider and operating requirements
 
 The only external AI provider is Google Gemini, called by Bible API through
-`generativelanguage.googleapis.com` for question generation (ADR-0011) and for
-scripture rewrite and rerank (ADR-0016). Transcription (Whisper) and embeddings
-of the rewritten query (bge-m3) run on company-hosted services and do not reach
+`generativelanguage.googleapis.com` for question generation (ADR-0011), for
+scripture rewrite and rerank (ADR-0016) and, when that route is configured, for
+transcription (ADR-0017). Transcription otherwise runs on the company-hosted
+Whisper service; a deployment uses one transcription route at a time. Embeddings
+of the rewritten query (bge-m3) run on a company-hosted service and do not reach
 Google. Bible API forwards content in memory and
 does not store prayer topics, replies, recordings, transcripts or generated
 responses in normal operation or production. It records only the metadata
@@ -153,7 +157,8 @@ may process them in countries where Google or its agents operate.
 Release requirements:
 
 - active billing covers every Gemini model that can receive prayer content:
-  question generation, scripture rewrite and rerank;
+  question generation, scripture rewrite and rerank, and transcription when it
+  is routed to Gemini;
 - developer-owned Gemini API logging is disabled;
 - no logs or datasets are shared with Google and no sensitive request is sent as
   feedback;
@@ -182,6 +187,13 @@ processing jurisdiction invalidates the affected consent records and requires a
 new notice and consent. A model change under the same processor and unchanged
 data terms does not require new consent, but still needs quality, security and
 documentation review.
+
+The only exception to the provider rule is audio transcription: moving it
+between the two processors the transcription notice already names, the
+company-hosted Whisper service and Google Gemini through Google's paid API
+(ADR-0017), does not require new consent while Google's paid-API terms are
+unchanged. Any other processor for transcription requires a new notice and
+consent.
 
 Lampada Mobile disclosures, Bible API behaviour, the public Privacy Policy and
 App Store Privacy answers are updated together. A provider change must not send

@@ -1,6 +1,6 @@
 # ADR-0006: Approved AI model selection
 
-- Status: Accepted for transcription and embeddings; questions superseded by ADR-0011, rewrite and rerank by ADR-0016
+- Status: Accepted for transcription and embeddings; questions superseded by ADR-0011, rewrite and rerank by ADR-0016; ADR-0017 permits Google Gemini as an alternative transcription route
 - Date: 2026-09-14
 - Supersedes: the model-selection parts of ADR-0002
 - Approval: Maria's production-deployment instruction, 2026-09-14

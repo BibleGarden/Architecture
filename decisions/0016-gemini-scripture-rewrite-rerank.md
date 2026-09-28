@@ -1,6 +1,6 @@
 # ADR-0016: Gemini Flash-Lite for scripture rewrite and rerank
 
-- Status: Accepted
+- Status: Accepted; the statement that transcription stays company-hosted is amended by ADR-0017 (2026-09-28)
 - Date: 2026-09-27
 - Ticket: ClickUp 123pfqn0kzh
 - Supersedes: the rewrite and rerank rows of ADR-0006
