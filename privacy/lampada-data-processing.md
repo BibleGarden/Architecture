@@ -188,6 +188,13 @@ new notice and consent. A model change under the same processor and unchanged
 data terms does not require new consent, but still needs quality, security and
 documentation review.
 
+The only exception to the provider rule is audio transcription: moving it
+between the two processors the transcription notice already names, the
+company-hosted Whisper service and Google Gemini through Google's paid API
+(ADR-0017), does not require new consent while Google's paid-API terms are
+unchanged. Any other processor for transcription requires a new notice and
+consent.
+
 Lampada Mobile disclosures, Bible API behaviour, the public Privacy Policy and
 App Store Privacy answers are updated together. A provider change must not send
 the same content to both old and new providers during migration. Public Lampada
