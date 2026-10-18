@@ -22,3 +22,4 @@ BibleGarden repository or an external system contract.
 | [0016](0016-gemini-scripture-rewrite-rerank.md) | Accepted | Use Gemini 3.5 Flash-Lite for scripture rewrite and rerank; Google is the only external AI provider |
 | [0017](0017-gemini-transcription-alternative.md) | Accepted | Transcribe Lampada recordings with company-hosted Whisper or Google Gemini through the paid API |
 | [0018](0018-book-corpus-legal-basis.md) | Accepted | Build the Lampada article corpus from any lawfully obtained books; publish only retellings and attributed quotations |
+| [0019](0019-file-based-rights-registry.md) | Accepted | Version rights metadata in Bible-API and build Site pages from a derived API snapshot |
